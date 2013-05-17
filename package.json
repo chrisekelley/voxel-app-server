@@ -1,0 +1,37 @@
+{
+  "name": "voxel-app-server",
+  "subdomain": "voxel",
+  "version": "0.0.1",
+  "dependencies": {
+    "minecraft-skin": "0.0.3",
+    "voxel-walk": "0.0.1",
+    "voxel-highlight": "0.0.8",
+    "toolbar": "0.0.5",
+    "voxel-player": "git://github.com/chrisekelley/voxel-player.git",
+    "voxel-engine": "git://github.com/chrisekelley/voxel-engine.git#threeJsVersionBump",
+    "voxel-crunch": "0.1.1",
+    "websocket-stream": "0.0.5",
+    "ws": "0.4.25",
+    "express": "3.2.1",
+    "hat": "0.0.3",
+    "duplex-emitter": "0.1.6",
+    "painterly-textures": "0.0.3",
+    "voxel": "0.3.1",
+    "browserify-express": "0.0.8",
+    "extend": "1.1.3",
+    "voxel-client": "git://github.com/chrisekelley/voxel-client.git",
+    "everyauth": "git://github.com/bnoguchi/everyauth.git#express3",
+    "jade": "0.30.0",
+    "three": "0.58.9",
+    "levelup": "0.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "0.7.9"
+  },
+  "scripts": {
+    "start": "nodemon demo.js"
+  },
+  "engines": {
+    "node": "0.10.x"
+  }
+}
