@@ -146,7 +146,7 @@ module.exports = function() {
 
   var bundle = browserify_express({
     entry: __dirname + '/www/js/demo.js',
-    watch: [__dirname + '/www/js/', __dirname + '/node_modules/voxel-client/index.js'],
+    watch: [__dirname + '/www/js/', __dirname + '/node_modules/voxel-bundle/index.js'],
     mount: '/js/bundle.js',
     verbose: true,
     minify: false,

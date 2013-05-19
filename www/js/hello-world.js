@@ -3,9 +3,10 @@ var highlight = require('voxel-highlight')
 var extend = require('extend')
 var voxelPlayer = require('voxel-player')
 var game
-var LabelMaker = require('./Label.js')
-var LabelPlugin = require('./LabelPlugin.js')()
+//var LabelMaker = require('./Label.js')
+//var LabelPlugin = require('./LabelPlugin.js')()
 var playerLabel
+var LabelMaker =  require('voxel-label')
 
 module.exports = function(opts, setup) {
   setup = setup || defaultSetup
@@ -25,30 +26,33 @@ module.exports = function(opts, setup) {
     // game to use it as the main player
     var playerSettings = {playerName :game.settings.username, gravitar :game.settings.gravitar}
     var avatar = createPlayer('player.png', playerSettings)
-    var THREE = game.THREE
-    var createLabel = LabelMaker(THREE, LabelPlugin)
-    console.log("Creating label for " + game.settings.username)
-    playerLabel = new createLabel(avatar, client.playerID, game.settings.username);
-      // setTimeout is because three.js seems to throw errors if you add stuff too soon
-      setTimeout(function() {
-        client.emitter.on('update', function(updates) {
-          Object.keys(updates.positions).map(function(playerId) {
-            if (playerId != client.playerID)  {
-              var other = this.others[playerId]
-              if (other && !other.labelled) {
-                var name = "Dude " + playerId.slice(0,4);
-                if (other.registration!= null) {
-                  var name = other.registration.username
-                }
-                new createLabel(other.mesh, playerId, name);
-                other.labelled = true
-              }
-            }
-          })
-        })
-      }, 1000)
+//    var THREE = game.THREE
+//    var createLabel = LabelMaker(THREE, LabelPlugin)
+//    console.log("Creating label for " + game.settings.username)
+//    playerLabel = new createLabel(avatar, client.playerID, game.settings.username);
+//      // setTimeout is because three.js seems to throw errors if you add stuff too soon
+//      setTimeout(function() {
+//        client.emitter.on('update', function(updates) {
+//          Object.keys(updates.positions).map(function(playerId) {
+//            if (playerId != client.playerID)  {
+//              var other = this.others[playerId]
+//              if (other && !other.labelled) {
+//                var name = "Dude " + playerId.slice(0,4);
+//                if (other.registration!= null) {
+//                  var name = other.registration.username
+//                }
+//                new createLabel(other.mesh, playerId, name);
+//                other.labelled = true
+//              }
+//            }
+//          })
+//        })
+//      }, 1000)
 
-    game.view.renderer.addPostPlugin(LabelPlugin);
+//    game.view.renderer.addPostPlugin(LabelPlugin);
+    var labelText = game.settings.username
+    playerLabel = LabelMaker(labelText, avatar, game, client.playerID, client.emitter, client.others)
+
     window.avatar = avatar
     avatar.possess()
     var settings = game.settings.avatarInitialPosition
