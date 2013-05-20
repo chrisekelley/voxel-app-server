@@ -258,7 +258,7 @@ module.exports = function() {
   function sendUpdate() {
     var clientKeys = Object.keys(clients)
     if (clientKeys.length === 0) return
-    var update = {positions:{}, date: +new Date()}
+    var update = {positions:{}, userInfo:{}, date: +new Date()}
     clientKeys.map(function(key) {
       var emitter = clients[key]
       update.positions[key] = {
@@ -268,6 +268,7 @@ module.exports = function() {
           y: emitter.player.rotation.y
         }
       }
+      update.userInfo[key] = emitter.registration
     })
     broadcast(false, 'update', update)
   }
@@ -330,19 +331,19 @@ module.exports = function() {
     console.log(id, 'joined')
     emitter.emit('id', id)
     broadcast(id, 'join', id)
-    var newUser = {id:id, username: username, gravitar: gravitar}
-    // send newUser to all users
-    console.log("Sending newUser: " + JSON.stringify(newUser))
-    broadcast(id, 'newUser', emitter.registration)
-    // send current users to this newUser
-    console.log("Sending current users to " + JSON.stringify(newUser))
-    Object.keys(clients).map(function(client) {
-      if (clients[client] != null && clients[client].registration != null) {
-        broadcast(id, 'newUser', clients[client].registration)
-      } else {
-        console.log("Cannot send newUser to " + client +" for " + clients[client] + " and client: " + client)
-      }
-    })
+//    var newUser = {id:id, username: username, gravitar: gravitar}
+//    // send newUser to all users
+//    console.log("Sending newUser: " + JSON.stringify(newUser))
+//    broadcast(id, 'newUser', emitter.registration)
+//    // send current users to this newUser
+//    console.log("Sending current users to " + JSON.stringify(newUser))
+//    Object.keys(clients).map(function(client) {
+//      if (clients[client] != null && clients[client].registration != null) {
+//        broadcast(id, 'newUser', clients[client].registration)
+//      } else {
+//        console.log("Cannot send newUser to " + client +" for " + clients[client] + " and client: " + client)
+//      }
+//    })
     stream.once('end', leave)
     stream.once('error', leave)
     function leave() {

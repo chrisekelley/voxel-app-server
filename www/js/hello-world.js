@@ -62,13 +62,6 @@ module.exports = function(opts, setup) {
     setup(game, avatar, client)
   })
 
-  client.emitter.on('newUser', function(registration) {
-    if (registration.id != client.playerID) {
-      console.log("Updating label for playerID: " + client.playerID + " using " + JSON.stringify(registration))
-      if (playerLabel != null) playerLabel.update(registration.username)
-    }
-  })
-
   return game
 }
 
