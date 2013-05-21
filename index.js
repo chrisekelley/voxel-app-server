@@ -95,6 +95,10 @@ module.exports = function() {
       .loginSuccessRedirect('/')
       .respondToLoginSucceed( function (res, user) {
         if (user) {
+          res.cookie('wsAuth', 'true')
+          res.cookie('expressSessionID', res.req.sessionID)
+          res.cookie('username', user.username)
+          res.cookie('gravitar', user.gravitar)
           this.redirect(res, this.loginSuccessRedirect());
         }
       })
@@ -146,7 +150,7 @@ module.exports = function() {
 
   var bundle = browserify_express({
     entry: __dirname + '/www/js/demo.js',
-    watch: [__dirname + '/www/js/', __dirname + '/node_modules/voxel-bundle/index.js'],
+    watch: [__dirname + '/www/js/', __dirname + '/node_modules/voxel-client/index.js',  __dirname + '/node_modules/voxel-label/index.js'],
     mount: '/js/bundle.js',
     verbose: true,
     minify: false,
@@ -201,10 +205,10 @@ module.exports = function() {
   // Function to authenticate if web socket access
   // should be granted
   function wsAuth(result) {
-    var thisSessionId
+    var sessionIdFromCookie
     var parseCookie = express.cookieParser()
     parseCookie(result.req, null, function(err) {
-      thisSessionId = result.req.cookies['expressSessionID']
+      sessionIdFromCookie = result.req.cookies['expressSessionID']
       var sid = result.req.cookies['sid']
       var wsAuth = result.req.cookies['wsAuth']
       // TODO: check if wsAuth = true.
@@ -212,28 +216,29 @@ module.exports = function() {
       gravitar = result.req.cookies['gravitar']
       settings.username =  username
       settings.gravitar =  gravitar
-      console.log("expressSessionID: " + thisSessionId + " username" + username)
+      console.log("sessionIdFromCookie: " + sessionIdFromCookie + " username: " + username)
       console.log("sid: " + sid + " wsAuth: " + wsAuth)
       result.req.sessionID =  sid
-      sessionStore.get(thisSessionId, function(err, session) {
+      sessionStore.get(sessionIdFromCookie, function(err, session) {
         // session
         console.log("session: " + session)
         if (err || !session) {
-          console.log("Session error")
+          console.log("Session error - unable to fetch session for this SessionId: " + sessionIdFromCookie)
         } else {
           result.req.session = session
         }
       })
     })
 
-    if (result.origin == "http://localhost:8080")   {
-        return true
-      } else {
-        return false
-      }
+//    if (result.origin == "http://localhost:8080")   {
+//        return true
+//      } else {
+//        return false
+//      }
+    return true
   }
 
-  var wss = new WebSocketServer({server: server, verifyClient: wsAuth})
+  var wss = new WebSocketServer({host: '0.0.0.0', server: server, verifyClient: wsAuth})
   console.log("Web server has started.\nPlease log on http://127.0.0.1:8080/index.html")
 
   var clients = {}
@@ -268,7 +273,7 @@ module.exports = function() {
           y: emitter.player.rotation.y
         }
       }
-      update.userInfo[key] = emitter.registration
+      update.userInfo[key] = emitter.userInfo
     })
     broadcast(false, 'update', update)
   }
@@ -320,7 +325,7 @@ module.exports = function() {
       rotation: new game.THREE.Vector3(),
       position: new game.THREE.Vector3()
     }
-    emitter.registration = {id:id, username: username, gravitar: gravitar}
+    emitter.userInfo = {id:id, username: username, gravitar: gravitar}
 
     app.use(function(req, res, next){
       res.locals.user = req.user
@@ -360,17 +365,17 @@ module.exports = function() {
       broadcast(null, 'message', message)
     })
 
-    emitter.on('sendUser', function(id) {
-      if (!id) return
-      var client = clients[id]
-      if (client!= null)  {
-        console.log("Sending newUser for id: " + id)
-        broadcast(id, 'newUser', client.registration)
-      } else {
-        console.log("Missing requested user id: " + id)
-      }
-
-    })
+//    emitter.on('sendUser', function(id) {
+//      if (!id) return
+//      var client = clients[id]
+//      if (client!= null)  {
+//        console.log("Sending newUser for id: " + id)
+//        broadcast(id, 'newUser', client.registration)
+//      } else {
+//        console.log("Missing requested user id: " + id)
+//      }
+//
+//    })
 
     // give the user the initial game settings
 	if (settings.generate != null) {

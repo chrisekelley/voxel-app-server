@@ -3,16 +3,16 @@ var highlight = require('voxel-highlight')
 var extend = require('extend')
 var voxelPlayer = require('voxel-player')
 var game
-//var LabelMaker = require('./Label.js')
-//var LabelPlugin = require('./LabelPlugin.js')()
 var playerLabel
-var LabelMaker =  require('voxel-label')
+var LabelPlugin =  require('voxel-label')
 
 module.exports = function(opts, setup) {
   setup = setup || defaultSetup
   opts = extend({}, opts || {})
+  var labels = []
 
-  var client = createClient("ws://localhost:8080/")
+  var client = createClient("ws://192.168.1.60:8080/")
+  //var client = createClient("ws://localhost:8080/")
   
   client.emitter.on('noMoreChunks', function(id) {
     console.log("Attaching to the container and creating player")
@@ -21,37 +21,39 @@ module.exports = function(opts, setup) {
     game.appendTo(container)
     if (game.notCapable()) return game
     var createPlayer = voxelPlayer(game)
-
     // create the player from a minecraft skin file and tell the
     // game to use it as the main player
     var playerSettings = {playerName :game.settings.username, gravitar :game.settings.gravitar}
     var avatar = createPlayer('player.png', playerSettings)
-//    var THREE = game.THREE
-//    var createLabel = LabelMaker(THREE, LabelPlugin)
-//    console.log("Creating label for " + game.settings.username)
-//    playerLabel = new createLabel(avatar, client.playerID, game.settings.username);
-//      // setTimeout is because three.js seems to throw errors if you add stuff too soon
-//      setTimeout(function() {
-//        client.emitter.on('update', function(updates) {
-//          Object.keys(updates.positions).map(function(playerId) {
-//            if (playerId != client.playerID)  {
-//              var other = this.others[playerId]
-//              if (other && !other.labelled) {
-//                var name = "Dude " + playerId.slice(0,4);
-//                if (other.registration!= null) {
-//                  var name = other.registration.username
-//                }
-//                new createLabel(other.mesh, playerId, name);
-//                other.labelled = true
-//              }
+    var labelText = game.settings.username
+    // init LabelPlugin
+    LabelPlugin(game)
+    playerLabel = LabelPlugin.label(labelText, avatar, game, client.playerID)
+      setTimeout(function() {
+        client.emitter.on('update', function(updates) {
+
+          Object.keys(updates.userInfo).map(function(playerId) {
+            var update = updates.userInfo[playerId]
+            if (playerId === self.playerID) return  // local playerId
+            var playerSkin = this.others[playerId]
+            if (playerSkin != null) {
+              playerSkin.userInfo = update
+              if (labels[playerId] !== playerSkin.userInfo.username) {
+                var otherPlayerLabel = LabelPlugin.label(playerSkin.userInfo.username, playerSkin.mesh, game, playerId)
+                labels[playerId] = playerSkin.userInfo.username
+              }
+            }
+          })
+
+//          Object.keys(client.others).map(function(playerId) {
+//            var playerSkin = client.others[playerId]
+//            if ((playerSkin.userInfo != null) && (labels[playerId] !== playerSkin.userInfo.username)) {
+//              playerLabel = LabelPlugin.label(playerSkin.userInfo.username, playerSkin.mesh, game, playerId)
+//              labels[playerId] = playerSkin.userInfo.username
 //            }
 //          })
-//        })
-//      }, 1000)
-
-//    game.view.renderer.addPostPlugin(LabelPlugin);
-    var labelText = game.settings.username
-    playerLabel = LabelMaker(labelText, avatar, game, client.playerID, client.emitter, client.others)
+        })
+      }, 1000)
 
     window.avatar = avatar
     avatar.possess()

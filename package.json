@@ -24,7 +24,7 @@
     "jade": "0.30.0",
     "three": "0.58.9",
     "levelup": "0.8.0",
-    "voxel-label": "0.0.1"
+    "voxel-label": "0.1.0"
   },
   "devDependencies": {
     "nodemon": "0.7.8"
